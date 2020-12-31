@@ -10,7 +10,7 @@
 
        data division.
        working-storage section.
-      * Variable Date et heures
+      * Variables temporelles
        01 DateSysteme.
          10 AAAA PIC 9(4).
          10 MM PIC 9(2).
@@ -21,14 +21,14 @@
          10 MM PIC 9(2).
          10 JJ PIC 9(2).
 
-
-       77 IntDateSysteme PIC 9(8).
-       77 IntDateContrat PIC 9(8).
-       77 IntDateSinistre PIC 9(8).
+       01 AgeClient.
+         10 AAAA PIC S9(4).
+         10 MM PIC S9(2).
+         10 JJ PIC S9(2).
+     
        77 totaljoursAAAA PIC 9(4).
        77 totaljoursMM PIC 9(4).
-       77 totaljoursJJ PIC 9(4).
-        
+       77 totaljoursJJ PIC 9(4).         
 
        77 tmpDateCreaClient PIC X(10).
        77 tmpDateCreaContrat PIC X(10).
@@ -43,6 +43,7 @@
       * Variable d'option des ecrans
        77 OptionMenuPrincipal pic 9 value 0.
 
+      * Variable pour les choix d'options
        77 OptionRechercheNom pic 9 value 0.
        77 OptionRechercheCodeClient pic 9 value 0.
        77 OptionRechercheContrat pic 9 value 0.
@@ -52,7 +53,7 @@
        77 OptionCreationContrat pic 9 value 0.
        77 OptionCreationSinistre pic 9 value 0.
        77 OptionCreationBeneficiaire pic 9 value 0.
-
+       77 OptionValiditeAgeClient pic 9 value 1.
        77 OptionVisualisationClients pic 9 value 0.
        77 OptionMenuClient pic 9 value 0.
        77 OptionVisualisationContrats pic 9 value 0.
@@ -64,12 +65,10 @@
        77 OptionModClient pic 9 value 0.
        77 OptionModBeneficiaire pic 9 value 0.
        77 OptionModContrat pic 9 value 0.
-       77 OptionModSinistre pic 9 value 0.
-       77 test1 pic 9.
+       77 OptionModSinistre pic 9 value 0.         
 
       * Variables de fin de traitement
        77 Menu-trt-fin pic 9.
-
        77 Recherche-nom-trt-Fin pic 9.
        77 Recherche-Codeclient-trt-Fin pic 9.
        77 Recherche-Contrat-trt-Fin pic 9.
@@ -159,7 +158,8 @@
          05 adresse PIC x(15).
          05 codePostal PIC x(5).
          05 ville PIC x(10).
-         05 somme PIC 9(9).
+         05 somme pic X(12).
+           
 
       * Correspond a la description des tables de la base de donnees. Le nom des champs doit etre identique aux champs des tables
       * ASTUCE : Commencer le niveau 2 avec un 05 permet de faire des copier/coller pour les tableaux et variables intermediaires
@@ -228,7 +228,7 @@
          05 adresse PIC x(50).
          05 codePostal PIC x(5).
          05 ville PIC x(30).
-         05 somme PIC 9(12)V99.
+         05 somme pic X(12).
 
       * reservation en memoire de 50 lignes pour les tableau
        01 TableauClient.
@@ -304,18 +304,21 @@
              05 adresse PIC x(50).
              05 codePostal PIC x(5).
              05 ville PIC x(30).
-             05 somme PIC 9(12)V99.
+             05 somme pic X(12).
 
-      * Numero d'indice de la table, taille de la table  et numero de ligne ?
+      * Numero d'indice de la table, taille de la table et numero de ligne.
        77 indiceTabClient PIC 99.
        77 tailleTabClient PIC 99.
        77 NoligneClient pic 99.
+
        77 indiceTabContrat PIC 99.
        77 tailleTabContrat PIC 99.
        77 NoligneContrat pic 99.
+
        77 indiceTabSinistre PIC 99.
        77 tailleTabSinistre PIC 99.
        77 NoligneSinistre pic 99.
+
        77 indiceTabBeneficiaire PIC 99.
        77 tailleTabBeneficiaire PIC 99.
        77 NoligneBeneficiaire pic 99.
@@ -324,15 +327,17 @@
        77 tailleTab PIC 99.
        77 Noligne pic 99.
 
+      * Definit le nombre de page de la liste et la page courante
        77 pagecourante pic 99.
        77 pagesTotales pic 99.
-   
+
+      * Variable qui donne la concatenation des infos du client pour faire les listes
        77 resultatclient PIC X(80).
        77 resultatcontrat pic X(80).
        77 resultatsinistre pic X(80).
        77 resultatBeneficiaire pic X(80).
 
-      * Déclaration des variables SQL Server
+      * Déclaration des variables de connection SQL Server
        77 CNXDB STRING.
            EXEC SQL
                INCLUDE SQLCA
@@ -431,8 +436,8 @@
          10 line 8 col 11 using Nom of beneficiairecourant PIC X(30).
          10 line 9 col 5 value "Prenom : ".
          10 line 9 col 14 using Prenom of beneficiairecourant PIC X(30).
-      *  10 line 10 col 5 value "Code contrat : ".
-      *  10 line 10 col 19 using codeContrat of Contratcourant PIC X(5).
+         10 line 10 col 5 value "Code contrat : ".
+         10 line 10 col 19 using codeContrat of Contratcourant PIC X(5).
 
       * Creation d'un client
        01 menu-Creation-Client background-color is CouleurFondEcran foreground-color is CouleurCaractere.
@@ -507,10 +512,10 @@
          10 line 19 col 5 value "--------------------------------------------------------------------".
          10 line 20 col 5 value "- 0 - Quitter                                                       ".
          10 line 21 col 5 value "- 1 - Cree                                                          ".
-         10 line 22 col 5 value "- 2 - Calcul du prix du contrat                                     ".
+      *  10 line 22 col 5 value "- 2 - Calcul du prix du contrat                                     ".
          10 line 23 col 5 value "                                                                    ".
          10 line 24 col 5 value "--------------------------------------------------------------------".
-      *todo faire un autre menu choix avec le calcul du prix du contrat fx option et somme beneficiaire
+      *todo Si on as le temps, faire un autre menu choix avec le calcul du prix du contrat fx option et somme beneficiaire
 
       * Creation d'un sinistre
        01 menu-Creation-sinistre background-color is CouleurFondEcran foreground-color is CouleurCaractere.
@@ -542,7 +547,7 @@
          10 line 23 col 5 value "                                                                    ".
          10 line 24 col 5 value "--------------------------------------------------------------------".
       
-
+      * Creation Date du sinistre
        01 Menu-Creation-Sinistre-Date background-color is CouleurFondEcran foreground-color is CouleurCaractere.
          10 Line 8 Col 24 using JJ of Date-sinistre of sinistrecourant PIC 99.
          10 line 8 col 26 value "/".
@@ -560,13 +565,6 @@
          10 line 3 col 71 from MM of DateSysteme.
          10 line 3 col 73 value "/".
          10 line 3 col 74 from AAAA of DateSysteme.
-      * Voir si on affiche les ref du contrat sur lequel on affecte le beneficiaire
-      *  10 line 5 col 5 using codeclient of clientcourant PIC X(8).
-      *  10 line 5 col 15 value "/".
-      *  10 Line 5 Col 17 using ContratCourant PIC X(8).
-      *  10 Line 5 Col 40 using Nom of clientCourant PIC X(15).
-      *  10 line 5 col 57 value "/".
-      *  10 Line 5 Col 59 using Prenom of clientCourant PIC X(15).
          10 line 8 col 5 value "Nom            : ".
          10 line 8 col 22 using Nom of beneficiaireCourant PIC X(30).
          10 line 9 col 5 value "Prenom         : ".
@@ -584,7 +582,8 @@
          10 line 13 col 27 value "/".
          10 line 13 col 28 using AAAA of beneficiaireCourant PIC 9(4).
          10 line 14 col 5 value "Somme du contrat d'assurance vie : ".
-         10 line 14 col 40 using somme of beneficiaireCourant PIC 9(12)V99.
+         10 line 14 col 40 using somme of beneficiaireCourant PIC X(12).
+         10 line 14 col 53 value "Euros".
          10 line 18 col 5 value "Option : ".
          10 line 20 col 5 value "--------------------------------------------------------------------".
          10 line 21 col 5 value "- 0 - Quitter                                                       ".
@@ -604,8 +603,7 @@
          10 line 3 col 74 from AAAA of DateSysteme.
          10 line 6 col 1 value "Nu  Client  Nom        Prenom     Adresse           CP    Ville      Naissance  ".
          10 line 7 col 1 value "--------------------------------------------------------------------------------".
-         10 line 18 col 5 value " Num Client : ".
-      *  10 line 18 col 19 PIC 9 from OptionVisualisationClients.
+         10 line 18 col 5 value " Num Client : ".        
          10 line 20 col 5 value "--------------------------------------------------------------------".
          10 line 21 col 5 value "-Num- Selection du client dans la liste                             ".
          10 line 22 col 5 value "- 0 - Menu Principal                                                ".
@@ -681,9 +679,9 @@
          10 line 7 col 1 value "Nu  contrat Client IT FR  PE FR  IA FR  MT FR  CH FR  DC Nb  Signature  Validite".
          10 line 18 col 5 value " Numero Contrat : ".
          10 line 18 col 67 value "Page ".
-         10 line 18 col 72 from pageCourante.
-         10 line 18 col 75 value "de ".
-         10 line 18 col 78 from pagesTotales.
+      *  10 line 18 col 72 from pageCourante.
+      *  10 line 18 col 75 value "de ".
+      *  10 line 18 col 78 from pagesTotales.
       * Prévoir une alerte si le client a plus de 65 ans.
          10 line 19 col 5 value "--------------------------------------------------------------------".
          10 line 20 col 5 value "-Num- Selection contrat                                             ".
@@ -779,8 +777,7 @@
          10 line 5 col 65 value "/".
          10 Line 5 Col 66 from AAAA of dateNaissance of clientCourant.
          10 line 7 col 5 value " Num / Sinistre / Client / Contrat / type / date sinistre                                   ".
-         10 line 18 col 5 value " Option : ".
-      *  10 line 17 col 23 PIC X from OptionVisualisationSinistres.
+         10 line 18 col 5 value " Option : ".       
          10 line 20 col 5 value "--------------------------------------------------------------------".
          10 line 21 col 5 value "- Num- Selection sinistre                                           ".
          10 line 22 col 5 value "- 0 - Menu Precedent                                                ".
@@ -812,15 +809,13 @@
          10 Line 8 Col 27 from MM of Date-sinistre of sinistrecourant PIC 99.
          10 line 8 col 29 value "/".
          10 Line 8 Col 30 from AAAA of Date-sinistre of sinistrecourant PIC 9999.
-         10 line 18 col 5 value " Options : ".
-      *  10 line 18 col 23 from OptionMenuSinistre PIC 9.
+         10 line 18 col 5 value " Options : ".        
          10 line 20 col 5 value "--------------------------------------------------------------------".
-         10 line 21 col 5 value "- 0 - Menu precedant                                        ".
+         10 line 21 col 5 value "- 0 - Menu precedant                                                ".
          10 line 22 col 5 value "- 1 - Modification                                                  ".
          10 line 23 col 5 value "                                                                    ".
          10 line 24 col 5 value "--------------------------------------------------------------------".
-      * Alerte si date déclaration > date sinistre + 7
-
+      
       * Cache certaines options du menu Detail Sinistre
        01 menu-Visualisation-Detail-sinistre-Choix background-color is CouleurFondEcran foreground-color is CouleurCaractere.
          10 line 3 col 1 value " MENU MODIFICATION DETAIL SINISTRE ".
@@ -847,19 +842,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from MM of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from AAAA of DateSysteme.
-      *  10 line 5 col 2 from CodeContrat of contratCourant PIC X(5).
-      *  10 line 5 col 8 value "/".
-      *  10 Line 5 Col 9 from Nom of clientCourant PIC X(10).
-      *  10 line 5 col 20 value "/".
-      *  10 Line 5 Col 21 from Prenom of clientCourant PIC X(10).
-      *  10 line 5 col 32 value "/".
-      *  10 Line 5 Col 33 from Ville of clientCourant PIC X(15).
-      *  10 Line 5 Col 60 from JJ of dateNaissance of clientCourant.
-      *  10 line 5 col 62 value "/".
-      *  10 Line 5 Col 63 from MM of dateNaissance of clientCourant.
-      *  10 line 5 col 65 value "/".
-      *  10 Line 5 Col 66 from AAAA of dateNaissance of clientCourant.
+         10 line 3 col 74 from AAAA of DateSysteme.       
          10 line 7 col 1 value " Nu  Contrat  Nom        Prenom        CP     Ville      Naissance      Somme ".
          10 line 18 col 5 value " Numero Beneficiaire : ".
          10 line 18 col 67 value "Page ".
@@ -867,7 +850,7 @@
          10 line 18 col 75 value "de ".
          10 line 18 col 78 from pagesTotales.
          10 line 19 col 5 value "--------------------------------------------------------------------".
-         10 line 20 col 5 value "-Num- Selection beneficiaire                                             ".
+         10 line 20 col 5 value "-Num- Selection beneficiaire                                        ".
          10 line 21 col 5 value "- 0 - Menu Precedant                                                ".
          10 line 22 col 5 value "                                                                    ".
          10 line 23 col 5 value "                                                                    ".
@@ -882,19 +865,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from MM of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from AAAA of DateSysteme.
-      *  10 line 5 col 2 from Codecontrat of contratCourant PIC X(5).
-      *  10 line 5 col 8 value "/".
-      *  10 Line 5 Col 9 from Nom of clientCourant PIC X(10).
-      *  10 line 5 col 20 value "/".
-      *  10 Line 5 Col 21 from Prenom of clientCourant PIC X(10).
-      *  10 line 5 col 32 value "/".
-      *  10 Line 5 Col 33 from Ville of clientCourant PIC X(15).
-      *  10 Line 5 Col 60 from JJ of dateNaissance of clientCourant.
-      *  10 line 5 col 62 value "/".
-      *  10 Line 5 Col 63 from MM of dateNaissance of clientCourant.
-      *  10 line 5 col 65 value "/".
-      *  10 Line 5 Col 66 from AAAA of dateNaissance of clientCourant.
+         10 line 3 col 74 from AAAA of DateSysteme.       
          10 line 7 col 5 value "Code contrat   : ".
          10 line 7 col 22 from Codecontrat of beneficiaireCourant PIC X(36).
          10 line 8 col 5 value "Nom            : ".
@@ -914,12 +885,13 @@
          10 line 13 col 27 value "/".
          10 line 13 col 28 using AAAA of beneficiaireCourant PIC 9(4).
          10 line 14 col 5 value "Somme du contrat d'assurance vie : ".
-         10 line 14 col 40 using somme of beneficiaireCourant PIC Z9(10)V99.
+         10 line 14 col 40 using somme of beneficiaireCourant PIC X(12).
+         10 line 14 col 53 value "Euros".
          10 line 18 col 5 value "Option : ".        
          10 line 20 col 5 value "--------------------------------------------------------------------".
          10 line 21 col 5 value "- 0 - Menu Precedant                                                ".
          10 line 22 col 5 value "- 1 - Modification                                                  ".
-      *  10 line 23 col 5 value "- 2 - Visualisation Beneficiaires  - 5 - Ajout Beneficiaire         ".
+         10 line 23 col 5 value "- 2 - Suppression Beneficiaires                                     ".
          10 line 24 col 5 value "--------------------------------------------------------------------".
 
       * Cache certaines options du menu Detail beneficiaire
@@ -951,8 +923,12 @@
            initialize BeneficiaireCourant.
 
       ********** Connexion à la base de données ***********************
-           MOVE
-             "Trusted_Connection=yes;Database=stagePOECCobol;server=COMPNAME\SQLEXPRESS;factory=System.Data.SqlClient;"
+           
+      ********************************************************************************************************************
+      ***********   Si export du code, PENSER A MODIFIER LES REFERENCES DU SERVER SQL PAR LES VOTRES   *******************
+      ********************************************************************************************************************
+           MOVE "Trusted_Connection=yes;Database=stagePOECCobol;server=COMPNAME\SQLEXPRESS;factory=System.Data.SqlClient;"
+      ********************************************************************************************************************
              to cnxDb.
            exec sql
                Connect using :CnxDb
@@ -1088,7 +1064,7 @@
            END-EXEC.
 
        DisplayListeClientsNom.
-      * Insertion du code du perform VisualisationClients. Pour le moment toutes les infos sont sous forme de tableau dans clientTable avec indiceTab
+      
            Display menu-visualisation-liste-clients
            initialize indiceTab.
            perform until indiceTab = tailleTabclient
@@ -1278,7 +1254,7 @@
                    declare Cursor-CodeContrat Cursor for
                    select codeContrat, CodeClient, IT, PE, IA, MT, CH, DAY(dateSignature), MONTH(dateSignature), YEAR(dateSignature), FRIT,FRPE,FRIA,FRMT,FRCH,DC
                    from contrats
-                   where CodeContrat like :FillerREQSQL
+                   where CodeContrat like :FillerREQSQL                    
            END-EXEC
 
            EXEC sql
@@ -1406,7 +1382,7 @@
               declare Cursor-CodeSinistre cursor for
               select codeSinistre, codeClient, codeContrat, typeSinistre, DAY(dateDuSinistre), MONTH(dateDuSinistre), YEAR(dateDuSinistre)
               from sinistres
-              where CodeSinistre like :FillerREQSQL
+              where CodeSinistre like :FillerREQSQL               
            END-EXEC
       * ouvre le curseur
            EXEC sql
@@ -1481,9 +1457,10 @@
 
        Recherche-Beneficiaire-Trt.
            Move 1 to Recherche-Beneficiaire-trt-Fin.
-           if nom of beneficiaireCourant = '' AND prenom of beneficiairecourant = '' THEN
+           if nom of beneficiaireCourant = '' AND prenom of beneficiairecourant = '' and codeContrat of contratCourant = '' THEN
                perform Menu
            else
+               STRING codecontrat of contratcourant '%' DELIMITED ' ' INTO FillerREQSQL
                perform SQLBeneficiaire
                perform DisplayBeneficiaire
                perform OptionVisualisationCodeBeneficiaire.
@@ -1493,10 +1470,15 @@
            evaluate optionVisualisationbeneficiaires
                when 0
                    perform menu
-               when 1
-                   move optionVisualisationbeneficiaires to indiceTab
-                   move corresponding beneficiaireTable(indiceTab) to beneficiaireCourant
-                   perform Visualisation-Detail-beneficiaire
+               when 1 thru 9
+                   if OptionVisualisationBeneficiaires >= indiceTabBeneficiaire then
+                       display "Veillez entrer un choix valide. " line 19 col 5
+                       perform OptionVisualisationBeneficiaire
+                   else
+                       move optionVisualisationbeneficiaires to indiceTab
+                       move corresponding beneficiaireTable(indiceTab) to beneficiaireCourant
+                       perform Visualisation-Detail-beneficiaire
+                   end-if
                when other
                    display "Veillez entrer un choix valide. " line 19 col 5
                    perform OptionVisualisationCodeBeneficiaire.
@@ -1506,13 +1488,13 @@
       * declare un curseur  Cursor-Beneficiaire
       * selectionne les variables a mettre dans le curseur  de la table beneficiaire
       * ou le nom ou le prenom est egale :beneficiairecourant.nom , :beneficiairecourant.prenom
-      * classer par nom, prenom
+      * classer par nom.
       *************************************************************************************************
            EXEC sql
               declare Cursor-Beneficiaire cursor for
               select codeBeneficiaire, codecontrat, nom, prenom, DAY(dateNaissance), MONTH(dateNaissance), YEAR(dateNaissance), adresse, codePostal, ville, somme
               from Beneficiaires
-              where nom = :beneficiairecourant.nom  OR prenom = :beneficiairecourant.prenom
+              where nom = :beneficiairecourant.nom  OR prenom = :beneficiairecourant.prenom OR codecontrat like :FillerREQSQL  
               order by nom
            END-EXEC
            
@@ -1558,22 +1540,20 @@
                perform until NoLigne = 18 OR indiceTab = tailleTabbeneficiaire
                    add 1 to indiceTab
                    move corresponding beneficiaireTable(indiceTab) to variablesIntermediairebeneficiaireCourant
-                   STRING " " indiceTab "  "
-      *              codebeneficiaire of variablesIntermediairebeneficiaireCourant " "
+                   STRING " " indiceTab "  "       
                      codecontrat of variablesIntermediairebeneficiaireCourant "    "
                      nom of variablesIntermediairebeneficiaireCourant " "
-                     prenom of variablesIntermediairebeneficiaireCourant "    "
-      *              adresse of variablesIntermediairebeneficiaireCourant " "
+                     prenom of variablesIntermediairebeneficiaireCourant "    "         
                      codePostal of variablesIntermediairebeneficiaireCourant "  "
                      ville of variablesIntermediairebeneficiaireCourant " "
                      JJ of dateNaissance of variablesIntermediairebeneficiaireCourant "/"
                      MM of dateNaissance of variablesIntermediairebeneficiaireCourant "/"
-                     AAAA of dateNaissance of variablesIntermediairebeneficiaireCourant "   "
+                     AAAA of dateNaissance of variablesIntermediairebeneficiaireCourant " "
                      somme of variablesIntermediairebeneficiaireCourant INTO resultatbeneficiaire
                    DISPLAY resultatbeneficiaire line NoLigne col 1       
                    ADD 1 TO NoLigne
                end-perform.
-           
+                                                           
 
        Recherche-Beneficiaire-Fin.
            Perform Menu.     
@@ -1596,15 +1576,24 @@
            Move 1 to VisualisationContrats-Trt-fin.
            perform SQLContratListe.
            perform DisplayContratListe.
-
+           perform OptionVisualisationContrat.
+       OptionVisualisationContrat.
            accept optionVisualisationContrats line 18 col 23
            evaluate optionVisualisationContrats
                when 0
                    perform menu
                when 1 thru 9
-                   move optionVisualisationContrats to indiceTab
-                   move corresponding ContratTable(indiceTab) to contratCourant
-                   perform Visualisation-Detail-Contrat.
+                   if optionVisualisationContrats >= indiceTabContrat then
+                       display "Veillez entrer un choix valide. " line 19 col 5
+                       perform OptionVisualisationContrat
+                   else
+                       move optionVisualisationContrats to indiceTab
+                       move corresponding ContratTable(indiceTab) to contratCourant
+                       perform Visualisation-Detail-Contrat
+                   end-if
+              when other
+           display "Veillez entrer un choix valide. " line 19 col 5
+           perform OptionVisualisationContrat.
 
        SQLContratListe.
            EXEC sql
@@ -1612,6 +1601,7 @@
                select codeContrat, CodeClient, IT, PE, IA, MT, CH, DAY(dateSignature), MONTH(dateSignature), YEAR(dateSignature), FRIT, FRPE, FRIA, FRMT, FRCH, DC, NombreBeneficiaires
                from contrats
                where Codeclient = :clientCourant.codeclient
+               order by dateSignature DESC
            END-EXEC
 
            EXEC sql
@@ -1703,29 +1693,38 @@
            Move 0 to VisualisationSinistres-Trt-fin.
            Display menu-visualisation-liste-sinistres.
            initialize indiceTabsinistre.
-           initialize tailleTabsinistre.
-      
-      * todo terminer les autres menu avec le when other et le when thru et faire les perform
+           initialize tailleTabsinistre.       
+                                  
        VisualisationSinistres-Trt.
            Move 1 to VisualisationSinistres-Trt-fin.
            perform SQLSinistreListe.
            perform DisplaySinistreListe.
+           perform optionVisualisationSinistre.
 
+       optionVisualisationSinistre.
            accept optionVisualisationSinistres line 18 col 15
            evaluate optionVisualisationSinistres
                when 0
                    perform menu
                when 1 thru 9
-                   move optionVisualisationSinistres to indiceTab
-                   move corresponding SinistreTable(indiceTab) to SinistreCourant
-                   perform Visualisation-Detail-Sinistre.
-
+                   if optionVisualisationSinistres >= indiceTabSinistre then
+                       display "Veillez entrer un choix valide. " line 19 col 5
+                       perform OptionVisualisationSinistre
+                   else
+                       move optionVisualisationSinistres to indiceTab
+                       move corresponding SinistreTable(indiceTab) to SinistreCourant
+                       perform Visualisation-Detail-Sinistre
+                   end-if
+               when other
+                   display "Veillez entrer un choix valide. " line 19 col 5
+                   perform OptionVisualisationSinistre.
        SQLSinistreListe.
            EXEC sql
                declare Cursor-CodeSinistreliste cursor for
                select codeSinistre, codeClient, codeContrat, typeSinistre, DAY(dateDuSinistre), MONTH(dateDuSinistre), YEAR(dateDuSinistre)
                from sinistres      
                where codeclient = :clientcourant.codeclient
+               order by DateDuSinistre DESC
            END-EXEC
 
            EXEC sql
@@ -1800,15 +1799,25 @@
            Move 1 to VisualisationBeneficiaires-Trt-fin.
            perform SQLBeneficiaireListe.
            perform DisplayBeneficiaireListe.
+           perform optionVisualisationbeneficiaire.
 
+       optionVisualisationbeneficiaire.
            accept optionVisualisationbeneficiaires line 18 col 19
            evaluate optionVisualisationbeneficiaires
                when 0
                    perform menu
                when 1 thru 9
-                   move optionVisualisationbeneficiaires to indiceTab
-                   move corresponding beneficiaireTable(indiceTab) to beneficiaireCourant
-                   perform Visualisation-Detail-beneficiaire.
+                   if optionVisualisationbeneficiaires >= indiceTabBeneficiaire then
+                       display "Veillez entrer un choix valide. " line 19 col 5
+                       perform OptionVisualisationBeneficiaire
+                   else
+                       move optionVisualisationbeneficiaires to indiceTab
+                       move corresponding beneficiaireTable(indiceTab) to beneficiaireCourant
+                       perform Visualisation-Detail-beneficiaire
+                   end-if
+               when other
+                   display "Veillez entrer un choix valide. " line 19 col 5
+                   perform OptionVisualisationBeneficiaire.
 
        SQLBeneficiaireListe.
            EXEC sql
@@ -1881,11 +1890,7 @@
 
       ***************************************************************
       ** Visualisation detail Client        Normalement OK
-      ***************************************************************
-
-      *  A faire. Pour la Mod on utilise "accept menu-Visualisation-Detail-client." alors que pour le display on fait juste le display
-      *  IDEM pour modContrat, modSinistre et modBeneficiaire
-
+      ***************************************************************              
        Visualisation-Detail-Client.
            perform Visualisation-Detail-Client-Init.
            perform Visualisation-Detail-Client-Trt until Visualisation-Detail-Client-trt-fin = 1.
@@ -1978,7 +1983,10 @@
                    else
                        Display "le contrat n'a pas de clause Deces" line 19 col 5
                    accept OptionMenuContrat line 18 col 15
-               when 5 perform Mod-beneficiaire
+               when 5
+                   perform Mod-beneficiaire
+               when 6
+                   perform Supp-Beneficiaire
                when other
                    display "Veillez entrer un choix valide. " line 19 col 5
            end-evaluate.
@@ -2084,8 +2092,7 @@
 
        Visualisation-Detail-beneficiaire-init.
            Move 0 to Visualisation-Detail-beneficiaire-trt-fin.
-           Display menu-Visualisation-Detail-beneficiaire.
-      *    accept menu-Visualisation-Detail-beneficiaire.
+           Display menu-Visualisation-Detail-beneficiaire.       
            accept OptionMenuBeneficiaires line 18 col 14.
        Visualisation-Detail-beneficiaire-Trt.
            move 1 to Visualisation-Detail-beneficiaire-Trt-fin.
@@ -2094,21 +2101,24 @@
                    perform menu
                when 1
                    perform Mod-beneficiaire
+               when 2 
+                   perform Supp-Beneficiaire
                when other
                    display "Veillez entrer un choix valide. " line 19 col 5
            end-evaluate.
 
        Visualisation-Detail-beneficiaire-Fin.
-
+           perform Menu.
        Mod-Beneficiaire.
-           display menu-Visualisation-Detail-Beneficiaire-choix.
-      *todo Faire un menu ou on change le titre du screen et ou on met les options, comme pour "menu-Visualisation-Detail-client-Choix"
-      *    Display menu-Visualisation-Detail-beneficiaire-Choix.
+      *todo pb de sreen, pas le bon, faire beneficiaire-choix mais avec modif
+
+           display menu-Visualisation-Detail-Beneficiaire.
            accept menu-Visualisation-Detail-Beneficiaire.
            accept OptionModBeneficiaire line 18 col 14.
            evaluate OptionModBeneficiaire
                when 1
                    STRING AAAA of dateNaissance of beneficiaireCourant "-" MM of dateNaissance of beneficiaireCourant "-" JJ of dateNaissance of beneficiaireCourant INTO tmpDateCreaBeneficiaire
+                   inspect somme of BeneficiaireCourant replacing all "," by "."
                    EXEC sql
                        UPDATE beneficiaires
                            set nom = :beneficiaireCourant.nom,
@@ -2134,6 +2144,20 @@
                    perform Menu
            end-evaluate.
 
+       Supp-Beneficiaire.
+           exec sql
+             delete from Beneficiaires where CodeBeneficiaire = :Beneficiairecourant.Codebeneficiaire
+           end-exec
+           if SQLCODE = 0
+               Display "Suppression du beneficiaire reussie." line 19 col 5
+               accept OptionModBeneficiaire
+               move 0 to OptionModBeneficiaire
+           else
+               Display "Suppression du beneficiaire echouee." line 19 col 5
+               accept OptionModBeneficiaire
+               move 1 to OptionModBeneficiaire
+           end-if.                  
+
       ***************************************************************
       ** Creation Client    Modif OK   
       ***************************************************************
@@ -2149,27 +2173,30 @@
            Display menu-Creation-Client.
            accept menu-Creation-Client.
            accept OptionCreationClient line 17 col 14.
+
        CreationClient-Trt.
       * Code de verification des conditions
-           if optionCreationClient = 1 AND
-             nom of clientCourant <> '' AND
-             prenom of clientCourant <> '' AND
-             adresse of clientCourant <> '' AND
-             codePostal of clientCourant <> '' AND
-             ville of clientCourant <> '' AND
-             (JJ of dateNaissance of clientCourant >= 1 AND JJ of dateNaissance of clientCourant <= 31) AND
-             (MM of dateNaissance of clientCourant >= 1 AND MM of dateNaissance of clientCourant <= 12) AND
-             (AAAA of dateNaissance of clientCourant >= 1900 AND AAAA of dateNaissance of clientCourant <= AAAA of DateSysteme) then
-               STRING JJ of dateNaissance of clientCourant "-" MM of dateNaissance of clientCourant "-" AAAA of dateNaissance of clientCourant INTO tmpDateCreaClient
-               perform SQLInsertClient
-           else
-               if optionCreationClient = 0
-                   move 0 to optionCreationClient
-               else
-                   move 1 to optionCreationClient
-               end-if.
-
-           move 1 to CreationClient-Trt-fin.
+           evaluate OptionCreationClient
+               when 0
+                   perform Menu
+               when 1
+                   perform ValiditeAgeClient
+                   if optionCreationClient = 1 AND
+                     OptionValiditeAgeClient = 1 AND
+                     nom of clientCourant <> '' AND
+                     prenom of clientCourant <> '' AND
+                     adresse of clientCourant <> '' AND
+                     codePostal of clientCourant <> '' AND
+                     ville of clientCourant <> '' AND
+                     (JJ of dateNaissance of clientCourant >= 1 AND JJ of dateNaissance of clientCourant <= 31) AND
+                     (MM of dateNaissance of clientCourant >= 1 AND MM of dateNaissance of clientCourant <= 12) AND
+                     (AAAA of dateNaissance of clientCourant >= 1900 AND AAAA of dateNaissance of clientCourant <= AAAA of DateSysteme) then
+                       STRING JJ of dateNaissance of clientCourant "-" MM of dateNaissance of clientCourant "-" AAAA of dateNaissance of clientCourant INTO tmpDateCreaClient
+                       perform SQLInsertClient
+                   else
+                       accept menu-Creation-Client.
+                       accept OptionCreationClient line 17 col 14.
+                       perform CreationClient-trt.       
 
        SQLInsertClient.
            EXEC SQL
@@ -2195,7 +2222,7 @@
            perform Menu.
       
       ***************************************************************
-      ** Creation Contrat        Faire option calcul cout du contrat
+      ** Creation Contrat        Faire option calcul cout du contrat si on a le temps
       ***************************************************************
        CreationContrat.
            perform CreationContrat-Init.
@@ -2209,28 +2236,30 @@
            accept menu-creation-contrat.
            accept OptionCreationContrat line 18 col 15.
        CreationContrat-Trt.
-           if optioncreationContrat = 1 AND (
-             IT of contratCourant <> '' or
-             PE of contratCourant <> '' or
-             IA of contratCourant <> '' or
-             MT of contratCourant <> '' or
-             CHM of contratCourant <> '' or
-             FRIT of contratCourant <> '' or
-             FRPE of contratCourant <> '' or
-             FRIA of contratCourant <> '' or
-             FRMT of contratCourant <> '' or
-             CHM of contratCourant <> '' or
-             DC of contratCourant <> '') then
-               STRING JJ of datesysteme "-" MM of dateSysteme "-" AAAA of dateSysteme INTO tmpDateCreaContrat
-               perform SQLContratInsert
-           else
-               if OptionCreationContrat = 0
-                   move 0 to OptionCreationContrat
-               else
-                   move 1 to OptionCreationContrat
-               end-if.
-
-           move 1 to CreationContrat-Trt-fin.
+           evaluate OptionCreationContrat
+               when 0
+                   perform Menu
+               when 1
+                   perform ValiditeAgeClient.
+                   if optioncreationContrat = 1 AND
+                       OptionValiditeAgeClient = 1 AND (
+                       IT of contratCourant <> '' or
+                       PE of contratCourant <> '' or
+                       IA of contratCourant <> '' or
+                       MT of contratCourant <> '' or
+                       CHM of contratCourant <> '' or
+                       FRIT of contratCourant <> '' or
+                       FRPE of contratCourant <> '' or
+                       FRIA of contratCourant <> '' or
+                       FRMT of contratCourant <> '' or
+                       CHM of contratCourant <> '' or
+                       DC of contratCourant <> '') then
+                       STRING JJ of datesysteme "-" MM of dateSysteme "-" AAAA of dateSysteme INTO tmpDateCreaContrat
+                       perform SQLContratInsert
+                   else
+                       accept menu-creation-contrat.
+                       accept OptionCreationContrat line 18 col 15.
+                       perform CreationContrat-Trt.
 
        SQLContratInsert.
                move 0 to NombreBeneficiaires of contratCourant
@@ -2258,7 +2287,7 @@
        CreationContrat-Fin.
            perform menu.
 
-      ****************************************************************
+      ***************************************************************
       ** Creation Sinistre          Modif OK  
       ***************************************************************
        CreationSinistre.
@@ -2301,8 +2330,7 @@
            if SQLCODE = 0
                Display "Creation du sinistre reussie.                      " line 19 col 5
                move 0 to OptionCreationSinistre
-               accept OptionCreationSinistre line 18 col 15
-      *todo voir pour faire un perform menu ou un evaluate pour sortir
+               accept OptionCreationSinistre line 18 col 15               
                perform CreationSinistre-Trt
            else
                Display "Creation du sinistre echouee.                      " line 19 col 5
@@ -2347,6 +2375,7 @@
 
        SQLBeneficiaireInsert.
            ADD 1 to NombreBeneficiaires of contratCourant
+           inspect somme of BeneficiaireCourant replacing all "," by "."
            EXEC sql
                UPDATE contrats
                    set NombreBeneficiaires = :contratCourant.NombreBeneficiaires                             
@@ -2382,6 +2411,7 @@
       ***************************************************************
 
        ValiditeContrat.
+      * Verifie si le contrat a moins de 1 ans 
            initialize DateValidite
            subtract AAAA of DateSysteme from AAAA of contratTable(indiceTab) GIVING AAAA of DateValidite
            subtract MM of DateSysteme from MM of contratTable(indiceTab) GIVING MM of DateValidite
@@ -2398,11 +2428,27 @@
                move "Oui" to Validite of variablesIntermediaireContratCourant
            END-IF.
 
-       ValiditeDC.
+       
 
        ValiditeAgeClient.
+      * Verifie si le client a plus de 18 ans et moins de 65 ans.
+           initialize DateValidite
+           subtract AAAA of clientcourant from AAAA of DateSysteme GIVING AAAA of AgeClient
+           subtract MM of clientcourant from MM of DateSysteme GIVING MM of AgeClient
+           subtract JJ of clientcourant from JJ of DateSysteme GIVING JJ of AgeClient
 
+           If AAAA of AgeClient <= 18 and MM of ageClient >= 0 and JJ of ageClient > 0 then
+               display "Le client est mineur" line 19 col 5
+               Move 0 to OptionValiditeAgeClient
+           end-if
+           If AAAA of AgeClient >= 65 and MM of ageClient >= 0 and JJ of ageClient > 0 then
+               display "Le client est trop age pour souscrire un contrat" line 19 col 5
+               Move 0 to OptionValiditeAgeClient
+           end-if.
+     
+      
        VerificationSinistreCouvert.
+      * Verifie si le sinistre declarer est couvert par le contrat.
            IF DC of sinistresCouverts of contratCourant = 1 AND TypeSinistre of sinistreCourant = "DC" OR
               IT of sinistresCouverts of contratCourant = 1 AND TypeSinistre of sinistreCourant = "IT" OR
               PE of sinistresCouverts of contratCourant = 1 AND TypeSinistre of sinistreCourant = "PE" OR
@@ -2416,7 +2462,9 @@
                accept OptionCreationSinistre line 18 col 15
                perform CreationSinistre-Trt.              
 
+      
        ValiditeDateSinistre.
+      * Verifie si le sinistre date de moins de 7 jours. 
            initialize DateValidite
            subtract AAAA of DateSysteme from AAAA of Date-sinistre of sinistrecourant GIVING AAAA of DateValidite
            subtract MM of DateSysteme from MM of Date-sinistre of sinistrecourant GIVING MM of DateValidite
