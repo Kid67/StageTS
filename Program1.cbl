@@ -5,11 +5,12 @@
        configuration section.
 
        special-names.
-           currency sign is "€"
+           currency sign is "â‚¬"
            decimal-point is comma.
 
        data division.
        working-storage section.
+      
       * Variables temporelles
        01 DateSysteme.
          10 AAAA PIC 9(4).
@@ -337,7 +338,7 @@
        77 resultatsinistre pic X(80).
        77 resultatBeneficiaire pic X(80).
 
-      * Déclaration des variables de connection SQL Server
+      * DÃ©claration des variables de connection SQL Server
        77 CNXDB STRING.
            EXEC SQL
                INCLUDE SQLCA
@@ -682,7 +683,7 @@
       *  10 line 18 col 72 from pageCourante.
       *  10 line 18 col 75 value "de ".
       *  10 line 18 col 78 from pagesTotales.
-      * Prévoir une alerte si le client a plus de 65 ans.
+      * PrÃ©voir une alerte si le client a plus de 65 ans.
          10 line 19 col 5 value "--------------------------------------------------------------------".
          10 line 20 col 5 value "-Num- Selection contrat                                             ".
          10 line 21 col 5 value "- 0 - Menu Precedant                                                ".
@@ -922,7 +923,7 @@
            initialize sinistreCourant.
            initialize BeneficiaireCourant.
 
-      ********** Connexion à la base de données ***********************
+      ********** Connexion Ã  la base de donnÃ©es ***********************
            
       ********************************************************************************************************************
       ***********   Si export du code, PENSER A MODIFIER LES REFERENCES DU SERVER SQL PAR LES VOTRES   *******************
