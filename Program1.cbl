@@ -1011,8 +1011,7 @@
                    end-if
                when other
                    display "Veillez entrer un choix valide. " line 19 col 5       
-                   perform OptionVisualisationClient.
-     
+                   perform OptionVisualisationClient.        
 
        SQLNom.
       ************************************************************************************************
